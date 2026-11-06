@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test fixtures and deliberately fake PII in the sample corpus"
+paths = ['''tests/conftest\.py''', '''data/docs/hr-contacts\.md''']

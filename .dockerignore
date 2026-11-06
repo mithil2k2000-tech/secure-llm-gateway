@@ -1,0 +1,8 @@
+.venv
+.git
+audit
+eval/results
+data/users.json
+**/__pycache__
+.pytest_cache
+.ruff_cache

@@ -1,0 +1,26 @@
+[project]
+name = "secure-llm-gateway"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 130
+target-version = "py312"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM"]
+ignore = ["S101"]  # asserts are fine in tests
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Header"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S105", "S106"]
+"scripts/*" = ["T201"]
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.bandit]
+exclude_dirs = [".venv", "tests"]

@@ -1,0 +1,19 @@
+services:
+  gateway:
+    build: .
+    ports: ["127.0.0.1:8000:8000"]
+    environment:
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      LLM_MODEL: ${LLM_MODEL:-}
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - ./data/users.json:/run/config/users.json:ro
+      - audit:/var/lib/gateway
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+volumes:
+  audit:
