@@ -10,6 +10,12 @@ RUN apt-get update && apt-get upgrade -y --no-install-recommends && rm -rf /var/
     && groupadd --system app && useradd --system --gid app --no-create-home app \
     && mkdir -p /var/lib/gateway && chown app:app /var/lib/gateway
 COPY --from=build /install /usr/local
+# Patch packages that ship in the base image but are not in requirements.txt (found by the Trivy image scan),
+# and drop build-only tooling from the runtime image.
+RUN for p in urllib3 msgpack; do \
+      if python -m pip show "$p" >/dev/null 2>&1; then python -m pip install --no-cache-dir --upgrade "$p"; fi; \
+    done \
+    && python -m pip uninstall -y setuptools wheel 2>/dev/null || true
 WORKDIR /app
 COPY --chown=root:root app ./app
 COPY --chown=root:root data/docs ./data/docs
