@@ -59,16 +59,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t secure-llm-gateway:${{ github.sha }} .
-      - name: trivy image scan
+      - name: trivy image scan (fails on fixable HIGH/CRITICAL)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: secure-llm-gateway:${{ github.sha }}
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: "1"
+      - name: trivy SARIF report
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: secure-llm-gateway:${{ github.sha }}
           format: sarif
           output: trivy.sarif
-          limit-severities-for-sarif: true
+          exit-code: "0"
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
         with: { sarif_file: trivy.sarif }
