@@ -10,12 +10,11 @@ RUN apt-get update && apt-get upgrade -y --no-install-recommends && rm -rf /var/
     && groupadd --system app && useradd --system --gid app --no-create-home app \
     && mkdir -p /var/lib/gateway && chown app:app /var/lib/gateway
 COPY --from=build /install /usr/local
-# Patch packages that ship in the base image but are not in requirements.txt (found by the Trivy image scan),
-# and drop build-only tooling from the runtime image.
-RUN for p in urllib3 msgpack; do \
-      if python -m pip show "$p" >/dev/null 2>&1; then python -m pip install --no-cache-dir --upgrade "$p"; fi; \
-    done \
-    && python -m pip uninstall -y setuptools wheel 2>/dev/null || true
+# The runtime image needs no package manager: remove pip, setuptools and wheel (including the copies bundled with
+# ensurepip), which also removes their vendored libraries flagged by the Trivy image scan.
+RUN python -m pip uninstall -y pip setuptools wheel; \
+    rm -rf /usr/local/lib/python3.13/ensurepip/_bundled /usr/local/lib/python3.13/site-packages/pip*; \
+    find / -xdev \( -name "setuptools*" -o -name "msgpack*" -o -name "urllib3*" \) -path "*site-packages*" -prune -print 2>/dev/null; true
 WORKDIR /app
 COPY --chown=root:root app ./app
 COPY --chown=root:root data/docs ./data/docs
