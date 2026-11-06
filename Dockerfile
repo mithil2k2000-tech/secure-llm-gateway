@@ -6,7 +6,8 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 AUDIT_LOG=/var/lib/gateway/audit.jsonl USERS_FILE=/run/config/users.json
-RUN groupadd --system app && useradd --system --gid app --no-create-home app \
+RUN apt-get update && apt-get upgrade -y --no-install-recommends && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system app && useradd --system --gid app --no-create-home app \
     && mkdir -p /var/lib/gateway && chown app:app /var/lib/gateway
 COPY --from=build /install /usr/local
 WORKDIR /app
